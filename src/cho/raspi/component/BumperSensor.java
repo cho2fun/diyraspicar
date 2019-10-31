@@ -45,7 +45,7 @@ public class BumperSensor implements ModuleItf, MediatorItf{
 					System.out.println("event current "+ touched  + "  " +  event.getPin() + " is High ");
 					if (!touched) {
 						System.out.println("BumperSensor triggered alert ");
-						mediator.receiveMessage(MessageEnum.ALERT, "Bumper "+ MessageEnum.ALERT.getAction());
+						mediator.receiveMessage(MessageEnum.HALERT, "Bumper "+ MessageEnum.HALERT.getAction());
 					}
 				}
 				if (event.getState().isLow()) {

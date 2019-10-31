@@ -4,14 +4,11 @@ package cho.raspi.map;
  * @author: Cheung Ho
  *
  */
-public enum MessageEnum {
+public enum OperationEnum {
 
-	HALERT("High Alert"),
-	ALERT("Alert"),
-	WARN("Warn"),
-    CLEAR("Clear"),
-    STOP("Stop"),
-    GO("Go");
+	HALT("HALT"),
+	WIP("WIP"),
+	NORMAL("Normal");
 	
 	 // declaring private variable for getting values 
     private String action; 
@@ -23,7 +20,7 @@ public enum MessageEnum {
     } 
   
     // enum constructor - cannot be public or protected 
-    private MessageEnum(String action) 
+    private OperationEnum(String action) 
     { 
         this.action = action; 
     } 

@@ -28,7 +28,7 @@ public class ObservatoryModule  implements ModuleItf {
 	PCA9685ServoDriver servoDriver = null;
 	LedModule ledModule = null;
 	UltraSonicSensorModule ultraSonicSensor = null;
-	static Logger logger = LoggerFactory.getLogger(ObservatoryModule.class);
+	Logger logger = LoggerFactory.getLogger(ObservatoryModule.class);
 
     private volatile boolean paused = false;
 
@@ -36,11 +36,23 @@ public class ObservatoryModule  implements ModuleItf {
     
 	private MediatorItf mediator = null;
     
-	public final int[] narrowSweepPosts = {1040,1220,1580,1760};  // from right to left
-	public final int[] narrowSweepAngles = {70,30,-30,-70};  
-	public double[] sweepData = {0,0,0,0 }; 
+//	public final int[] narrowSweepPosts = {1040,1220,1580,1760};  // from right to left
+	public final int[] narrowSweepPosts = {1140,1270,1530,1660};  // from right to left
+	public final int[] narrowSweepAngles = {60,30,-30,-60};  
+	volatile private double[] sweepData = {0,0,0,0 }; 
 	//	experiment class controlling both individual servomotor and ultrasonic
 
+	
+	
+	public double[] getSweepData() {
+		return sweepData;
+	}
+	
+	public void setSweepData(int idx, double value) {
+		sweepData[idx]= value;
+	}
+	
+	
 	static public void main(String[] args) {
 
 		
@@ -114,7 +126,6 @@ public class ObservatoryModule  implements ModuleItf {
 	}
 	
 	public void narrowSweep() {
-		int angleperunit = 25;
 		try {
 			int m = 0;
 			while(true) {
@@ -123,6 +134,9 @@ public class ObservatoryModule  implements ModuleItf {
 				m++;
 				int direction = 1;
 				while (i >=0 && i <narrowSweepPosts.length) {
+					// if status is paused, exit method and thread will rerun this again once this is unpaused.
+					if (this.paused) return;
+					
 					hServo.moveTo(narrowSweepPosts[i]);
 					System.out.printf("sweep Lap  %d-%d   pos: %d    %d\n",  m,i, narrowSweepPosts[i] , direction);
 					TimeUnit.MILLISECONDS.sleep(200);
@@ -202,10 +216,6 @@ public class ObservatoryModule  implements ModuleItf {
 				} catch (InterruptedException e) {
 					System.out.println("interrupted "+e);
 				}
-
-//				logger.info("stat {} {} {} cm. status {}\n",i,hMotor.position, objectDistance, sensor.getState());
-//				System.out.printf("stat %d %d %5.5f cm. status %s\n",i,hMotor.position, objectDistance, sensor.getState());
-//				TimeUnit.SECONDS.sleep(4);
 			}
 			this.faceForward();
 		} catch (Exception e) {
@@ -262,10 +272,11 @@ public class ObservatoryModule  implements ModuleItf {
 
 	// this method analyze data and return angle with empty spots.
 	// angle return is 0 = left, 90 = center, 180 = right
-	public int getDirection(List<Double> rawData) {
+	public int getDirection(List<Double> rawData) {		
 		int threshold = 30;
 		int degree = 0;
 		int[] act2 = new int[rawData.size()];
+		if (rawData == null || rawData.size() == 0 ) return -1;
 //		new ArrayList<>(rawData.size());
 		for (int i = 0;i< rawData.size(); i ++) {
 			if (threshold < rawData.get(i)) {

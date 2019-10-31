@@ -184,18 +184,23 @@ public class NavigationModule extends Thread implements ModuleItf {
 		int strongPwm = 900;
 		int slowPwm = 200;
 		double startPost = compass.readMagnetemeter(3, false);
-		double distTravel = 0;
+		double moveDist = 0;
 		double previousPost = startPost;
-		int targetAngle = Math.abs(degree);
+		int targetDist = Math.abs(degree);
+		int remainDist = degree;
 		while(true) {
-			steering.rotate(degree);
+			steering.rotate(remainDist);
 			double nowPost = compass.readMagnetemeter(2, false);
-			distTravel = this.trackAngle(degree,startPost,  previousPost, nowPost,distTravel);
-			logger.info("track runCir {} ,s {} , {} -> {} t {} \n",degree, startPost, previousPost,nowPost, distTravel );
+			moveDist = this.trackAngle(degree,startPost,  previousPost, nowPost,moveDist);
+			logger.info("track runCir {} ,s {} , {} -> {} t {}  r {} \n",degree, startPost, previousPost,nowPost, moveDist, remainDist );
 			previousPost = nowPost;
-			if (distTravel > targetAngle) {
-				logger.info("track fwd over {} > {}", distTravel , targetAngle);
+			if (moveDist >= targetDist-3) {
+				logger.info("track fwd over {} > {}", moveDist , targetDist);
 				break;
+			}
+			else {
+				// update remainAngle 
+				remainDist = (int) Math.round( (degree > 0 ? degree - moveDist : degree + moveDist)); 
 			}
 		}
 		steering.stop();
@@ -216,12 +221,11 @@ public class NavigationModule extends Thread implements ModuleItf {
 	public void runReverseCircle(MPU9250_GyroMagnet compass, int degree) throws InterruptedException {
 //		steering.reverse(degree, compass);
 //		steering.stop();
-		int rDegree = -1* degree;
 		//	don't implement this until it is fully tested	
 		//		compass.gyromagWake(AK8963_MapValues.AK8963_CNTL_MODE_SINGLEMEASURE);
 		//		Thread.sleep(200);
 		this.steering.reverse();
-		Thread.sleep(500);
+		Thread.sleep(800);
 		double startPost = compass.readMagnetemeter(3, false);
 		double distTravel = 0;
 		double previousPost = startPost;
@@ -235,7 +239,7 @@ public class NavigationModule extends Thread implements ModuleItf {
 			//			System.out.printf("%d %8.4f, %8.4f - %8.4f = %8.4f  \n",degree, startPost, previousPost,nowPost, distTravel);
 			logger.info("track rotate {} ,s {} , {} -> {} =t {} \n",degree, startPost, previousPost,nowPost, distTravel );
 			previousPost = nowPost;
-			if (distTravel > targetAngle) {
+			if (distTravel >= targetAngle - 3) {
 				logger.info("track over {} > {}", distTravel , targetAngle);
 				break;
 			}

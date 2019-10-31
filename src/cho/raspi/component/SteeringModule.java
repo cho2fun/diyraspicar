@@ -257,10 +257,8 @@ public class SteeringModule extends SteeringModuleAbstract {
 			}
 			// 6000 /360 = 16 ms for each degree
 			Thread.sleep(8*Math.abs(degree));  // wheels are losing power as more devices are connected.
-			// return to previous state
-//			leftMotor.setSpeed(currentSpeed);
-//			rightMotor.setSpeed(currentSpeed);
 		return false;
+		
 	}
 
 
@@ -269,6 +267,7 @@ public class SteeringModule extends SteeringModuleAbstract {
 	* the car takes 6 seconds to complete 360 degrees	
 	* 
 	*/	
+		@Deprecated  // refer to NavigationModule.rotate 
 		public boolean rotate(int degree, MPU9250_GyroMagnet compass) throws InterruptedException {
 //			compass.gyromagWake(AK8963_MapValues.AK8963_CNTL_MODE_SINGLEMEASURE);
 //			Thread.sleep(200);
